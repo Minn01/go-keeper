@@ -17,7 +17,7 @@ func main() {
 	case "downloads":
 		commands.CleanDownloads()
 	case "desktop":
-		commands.FilterDesktop()
+		commands.CleanDesktop()
 	default:
 		fmt.Println("Unknown command")
 	}

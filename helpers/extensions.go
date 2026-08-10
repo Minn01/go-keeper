@@ -18,7 +18,6 @@ var installerExtensions = map[string]bool{
 	".tar": true,
 	".gz":  true,
 }
-
 var codeExtensions = map[string]bool{
 	".go":   true,
 	".js":   true,

@@ -9,7 +9,7 @@ import (
 	"go-keeper/helpers"
 )
 
-func FilterDesktop() {
+func CleanDesktop() {
 	fmt.Println("Filtering desktop...")
 
 	homeDir := helpers.GetHomeDir()
