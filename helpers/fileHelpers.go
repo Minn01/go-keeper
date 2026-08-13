@@ -18,8 +18,8 @@ func GetFilesFromFolder(folderPath string) []os.DirEntry {
 	return files
 }
 
-func IsFileExpired(fileInfo os.FileInfo) bool {
+func IsFileExpired(fileInfo os.FileInfo, expirationDays int) bool {
 	var fileAge time.Duration = time.Since(fileInfo.ModTime())
-	// TODO: the expiration time should be loaded from the config JSON file, not hardcoded
-	return fileAge.Hours() > 24*30 // 30 days
+	// the expiration duration comes from the json config file
+	return fileAge.Hours() > float64(24*expirationDays)
 }

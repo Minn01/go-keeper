@@ -5,22 +5,25 @@ import (
 	"os"
 	"path/filepath"
 
+	"go-keeper/config"
 	"go-keeper/helpers"
 )
 
-func CleanDownloads() {
+func CleanDownloads(cfg config.Config) {
+	// get user home directory
 	var homeDir string = helpers.GetHomeDir()
 
+	// create the sort folders if they don't exist
 	fmt.Println("Creating organize folders...")
 	var sortFolders [5]string = createOrganizeFolders(homeDir)
 
 	// moves files from Downloads folder to the sort folders
 	fmt.Println("Sorting files...")
-	moveFilesToSortFolders()
+	moveFilesToSortFolders(cfg)
 
 	// delete the files in the sort folders
 	fmt.Println("Deleting files in the sort folders")
-	cleanSortFolders(homeDir, sortFolders)
+	cleanSortFolders(cfg, homeDir, sortFolders)
 }
 
 func createOrganizeFolders(homeDir string) [5]string {
@@ -43,7 +46,7 @@ func createOrganizeFolders(homeDir string) [5]string {
 	return sortFolders
 }
 
-func cleanSortFolders(homeDir string, sortFolders [5]string) {
+func cleanSortFolders(cfg config.Config, homeDir string, sortFolders [5]string) {
 	for _, dir := range sortFolders {
 		for _, entry := range helpers.GetFilesFromFolder(filepath.Join("Downloads", dir)) {
 			fileInfo, infoErr := entry.Info()
@@ -53,7 +56,14 @@ func cleanSortFolders(homeDir string, sortFolders [5]string) {
 				continue
 			}
 
-			if helpers.IsFileExpired(fileInfo) {
+			expirationDuration := cfg.Downloads[dir]
+
+			// checks the config file for expiration duration
+			if expirationDuration == nil { 
+				continue
+			}
+
+			if helpers.IsFileExpired(fileInfo, *expirationDuration) {
 				// delete the file if expired
 				path := filepath.Join(homeDir, "Downloads", dir, entry.Name())
 				deleteErr := os.Remove(path)
@@ -66,7 +76,7 @@ func cleanSortFolders(homeDir string, sortFolders [5]string) {
 	}
 }
 
-func moveFilesToSortFolders() {
+func moveFilesToSortFolders(cfg config.Config) {
 	var homeDir string = helpers.GetHomeDir()
 
 	// dirName = Downloads
@@ -83,8 +93,16 @@ func moveFilesToSortFolders() {
 			continue
 		}
 
+		// classify the file extension and get expire duration from config
+		var sortFolder string = helpers.ClassifyFileExtension(entry)
+		var expDuration *int = cfg.Downloads[sortFolder]
+
+		if expDuration ==  nil {
+			continue
+		}
+
 		// checks file date
-		if helpers.IsFileExpired(fileInfo) {
+		if helpers.IsFileExpired(fileInfo, *expDuration) {
 			// delete the file if expired
 			path := filepath.Join(homeDir, "Downloads", entry.Name())
 			deleteErr := os.Remove(path)
@@ -94,8 +112,6 @@ func moveFilesToSortFolders() {
 			}
 		} else {
 			// move file to the appropriate folders
-			var sortFolder string = helpers.ClassifyFileExtension(entry)
-
 			oldPath := filepath.Join(homeDir, "Downloads", entry.Name())
 			newPath := filepath.Join(homeDir, "Downloads", sortFolder, entry.Name())
 

@@ -6,10 +6,11 @@ import (
 	"path/filepath"
 	"strings"
 
+	"go-keeper/config"
 	"go-keeper/helpers"
 )
 
-func CleanDesktop() {
+func CleanDesktop(cfg config.Config) {
 	fmt.Println("Filtering desktop...")
 
 	homeDir := helpers.GetHomeDir()
@@ -63,10 +64,10 @@ func CleanDesktop() {
 	}
 
 	// Delete the files if expired and if not keep
-	cleanScreenshots(homeDir)
+	cleanScreenshots(cfg, homeDir)
 }
 
-func cleanScreenshots(homeDir string) {
+func cleanScreenshots(cfg config.Config, homeDir string) {
 	for _, entry := range helpers.GetFilesFromFolder("Desktop/Screenshots") {
 		fileInfo, infoErr := entry.Info()
 
@@ -75,8 +76,11 @@ func cleanScreenshots(homeDir string) {
 			continue
 		}
 
+		// get expiration duration from config file
+		expirationDuration := cfg.ScreenshotsExpirationDays
+
 		// file expiry check
-		if helpers.IsFileExpired(fileInfo) && strings.HasPrefix(entry.Name(), "Screenshot") {
+		if helpers.IsFileExpired(fileInfo, expirationDuration) && strings.HasPrefix(entry.Name(), "Screenshot") {
 			// delete if file expired
 			path := filepath.Join(homeDir, "Desktop", "Screenshots", entry.Name())
 
