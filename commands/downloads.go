@@ -24,6 +24,8 @@ func CleanDownloads(cfg config.Config) {
 	// delete the files in the sort folders
 	fmt.Println("Deleting files in the sort folders")
 	cleanSortFolders(cfg, homeDir, sortFolders)
+	
+	fmt.Println("Completed Cleaning Downloads folder")
 }
 
 func createOrganizeFolders(homeDir string) [5]string {

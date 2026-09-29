@@ -61,6 +61,8 @@ func CleanDesktop(cfg config.Config) {
 			}
 			fmt.Println("Moved file " + oldPath + " to the Downloads folder\n")
 		}
+
+		fmt.Println("Completed Cleaning Desktops Folder...")
 	}
 
 	// Delete the files if expired and if not keep
